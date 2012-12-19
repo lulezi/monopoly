@@ -27,18 +27,12 @@ feature
 			p_exists: p /= Void
 		local
 			s: STRING
-			ans: CHARACTER
-			pos: POSITION
 		do
 			if owner = Void and p.money >= price then
-				p.board.draw_center_text (p.name + ": You wanna buy " + name + " for CHF " + price.out + "? (Y/n) ")
-				ans := p.board.read_answer
-				if ans /= 'n' and ans /= 'N' then -- anser is yes or default (Y)
+				p.board.draw_center_text (p.name + ": You wanna buy " + name + " for CHF " + price.out + "?")
+				if p.board.read_answer (p) then
 					owner := p
-					owner.transfer (-price)
-					pos := p.board.get_draw_pos (p.position)
-					pos.affect_i (1)
-					p.board.draw_at_pos (pos, p.number.out + ": CHF " + rent.out)
+					p.buy (Current)
 				end
 			elseif owner /= Void and owner.money > 0 then
 				create s.make_from_string (p.name + " paid CHF ")
@@ -57,6 +51,11 @@ feature
 		end
 
 	owner: PLAYER
+
+	unown
+		do
+			owner := Void
+		end
 
 	rent: INTEGER
 

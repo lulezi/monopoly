@@ -16,18 +16,18 @@ feature {NONE} -- Initialization
 
 			create squares.make (1, Square_count)
 
-			squares [2]  := create {PROPERTY_SQUARE}.make_property ("Dübendorfstrasse", "DUBENDORF", 60, 2)
-			squares [3]  := create {PROPERTY_SQUARE}.make_property ("Winterthurerstrasse", "WINTERT.", 60, 4)
-			squares [5]  := create {PROPERTY_SQUARE}.make_property ("Schwamendingerplatz", "SCHWAMEND", 80, 4)
-			squares [7]  := create {PROPERTY_SQUARE}.make_property ("Josefwiese", "JOSEFWIES", 100, 6)
-			squares [8]  := create {PROPERTY_SQUARE}.make_property ("Escher-Wyss-Platz", "E.-W.-PL.", 120, 8)
-			squares [10] := create {PROPERTY_SQUARE}.make_property ("Langstrasse", "LANGSTR.", 160, 12)
-			squares [12] := create {PROPERTY_SQUARE}.make_property ("Schaffhauserplatz", "SCHAFFH.", 220, 18)
-			squares [14] := create {PROPERTY_SQUARE}.make_property ("Universitätsstrasse", "UNI.STR.", 260, 22)
-			squares [15] := create {PROPERTY_SQUARE}.make_property ("Irchelpark", "IRCHELP.", 260, 22)
-			squares [17] := create {PROPERTY_SQUARE}.make_property ("Bellevue", "BELLEVUE", 320, 28)
-			squares [18] := create {PROPERTY_SQUARE}.make_property ("Niederdorf", "NIEDERD.", 350, 35)
-			squares [20] := create {PROPERTY_SQUARE}.make_property ("Bahnhofstrasse", "BAHNHOF", 400, 50)
+			squares [2]  := create {PROPERTY_SQUARE}.make_property ("Dübendorfstrasse", "DUBENDORF", 60, 12)
+			squares [3]  := create {PROPERTY_SQUARE}.make_property ("Winterthurerstrasse", "WINTERT.", 60, 12)
+			squares [5]  := create {PROPERTY_SQUARE}.make_property ("Schwamendingerplatz", "SCHWAMEND", 80, 16)
+			squares [7]  := create {PROPERTY_SQUARE}.make_property ("Josefwiese", "JOSEFWIES", 100, 20)
+			squares [8]  := create {PROPERTY_SQUARE}.make_property ("Escher-Wyss-Platz", "E.-W.-PL.", 120, 24)
+			squares [10] := create {PROPERTY_SQUARE}.make_property ("Langstrasse", "LANGSTR.", 160, 32)
+			squares [12] := create {PROPERTY_SQUARE}.make_property ("Schaffhauserplatz", "SCHAFFH.", 220, 44)
+			squares [14] := create {PROPERTY_SQUARE}.make_property ("Universitätsstrasse", "UNI.STR.", 260, 52)
+			squares [15] := create {PROPERTY_SQUARE}.make_property ("Irchelpark", "IRCHELP.", 260, 52)
+			squares [17] := create {PROPERTY_SQUARE}.make_property ("Bellevue", "BELLEVUE", 320, 64)
+			squares [18] := create {PROPERTY_SQUARE}.make_property ("Niederdorf", "NIEDERD.", 350, 70)
+			squares [20] := create {PROPERTY_SQUARE}.make_property ("Bahnhofstrasse", "BAHNHOF", 400, 80)
 
 			squares [1]  := create {GO_SQUARE}.make ("GO!", "   GO!")
 
@@ -60,7 +60,7 @@ feature -- Constants
 
 	center_text_pos: POSITION
 		do
-			create Result.make (square_h + 2, square_w + 3)
+			create Result.make (square_h + 4, square_w + 3)
 		end
 
 	char_rows: INTEGER
@@ -107,10 +107,11 @@ feature -- Output
 			end
 		end
 
-	get_draw_pos (square_id: INTEGER): POSITION
+	get_draw_pos (square: SQUARE): POSITION
 		local
-			i, j: INTEGER
+			i, j, square_id: INTEGER
 		do
+			square_id := squares.index_of (square)
 			if square_id >= 1 and square_id <= (Square_count // 4) + 1 then
 				i := 2
 				j := 2 + ((square_id - 1) * (square_w - 1))
@@ -135,22 +136,57 @@ feature -- Output
 			io.put_string (s)
 		end
 
+	highlight_property (square: PROPERTY_SQUARE)
+		require
+			square /= Void
+		local
+			pos: POSITION
+			s: STRING
+		do
+			create s.make_empty
+			if square.short_name.count < square_w - 2 then
+				s.append (" ")
+				s.multiply (square_w - 2 - square.short_name.count)
+			end
+			s.prepend (square.short_name)
+			pos := get_draw_pos (square)
+			scc (7, square.owner.color)
+			draw_at_pos (pos, s)
+			scc (7, 0)
+		end
+
+	un_highlight_property (square: PROPERTY_SQUARE)
+		require
+			square /= Void
+		local
+			pos: POSITION
+			s: STRING
+		do
+			create s.make_empty
+			if square.short_name.count < square_w - 2 then
+				s.append (" ")
+				s.multiply (square_w - 2 - square.short_name.count)
+			end
+			s.prepend (square.short_name)
+			pos := get_draw_pos (square)
+			scc (7, 0)
+			draw_at_pos (pos, s)
+		end
+
 	draw_square_names
 		local
 			i: INTEGER
 			pos: POSITION
 		do
-			i := 1
 			across
 				squares as square
 			loop
-				pos := get_draw_pos (i)
+				pos := get_draw_pos (square.item)
 				draw_at_pos (pos, square.item.short_name)
 				if square.item.price /= 0 then
 					pos.affect_i (1)
 					draw_at_pos (pos, " CHF " + square.item.price.out)
 				end
-				i := i + 1
 			end
 		end
 
@@ -200,7 +236,7 @@ feature -- Output
 			across
 				players as p
 			loop
-				draw_at_pos (pos, p.item.name + " CHF " + p.item.money.out + "          ")
+				draw_at_pos (pos, p.item.name + " CHF " + p.item.money.out + "        ")
 				pos.affect_i (1)
 			end
 		end
@@ -221,27 +257,34 @@ feature  -- player positions
 			end
 
 			if p.old_position /= 0 then
-				pos := get_draw_pos (p.old_position)
+				pos := get_draw_pos (squares [p.old_position])
 				pos.affect_i (((p.number - 1) // 3) + 2)
 				pos.affect_j (3 * x - 3)
 				draw_at_pos (pos, "   ")
 			end
 
-			pos := get_draw_pos (p.position)
+			pos := get_draw_pos (squares [p.position])
 			pos.affect_i (((p.number - 1) // 3) + 2)
 			pos.affect_j (3 * x - 3)
-			scc (0, p.color)
+			scc (7, p.color)
 			draw_at_pos (pos, "[" + p.number.out + "]")
 			scc (7, 0)
 
 		end
 
 feature  -- user interaction
-	read_answer: CHARACTER
+	read_answer (p: PLAYER): BOOLEAN
+		local
+			ans: CHARACTER
 		do
-			print ("%N")
-			io.read_character
-			Result := io.last_character
+--			mcc (center_text_pos.i + 4, center_text_pos.j)
+--			scc (7, p.color)
+--			io.put_string ("ANSWER (Y/n): ")
+--			io.read_character
+--			scc (7, 0)
+--			ans := io.last_character.as_lower
+--			Result := (ans /= 'n')
+			Result := true
 		end
 
 feature

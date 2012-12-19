@@ -36,27 +36,27 @@ feature -- Basic operations
 	play
 			-- Start a game.
 		local
-			round, i, pig: INTEGER
+			round, i: INTEGER
+			pos: POSITION
 		do
-			pig := -1
+			pos := board.center_text_pos
+			pos.affect_i (-2)
 			from
 				round := 1
-				print ("The game begins.%N")
 			until
-				pig = 0 or round > 100
+				winner /= Void or round > 1000
 			loop
-				pig := 0
+				board.draw_at_pos (pos, "Round # " + round.out)
 				from
 					i := 1
 				until
-					i > players.count
+					i > players.count or winner /= Void
 				loop
 					if players [i].money > 0 then
 						players [i].play (die_1, die_2)
 						board.sync_leaderboard (players)
-						pig := pig + 1
 					end
-					io.read_line
+--					io.read_line
 					i := i + 1
 				end
 				round := round + 1
@@ -81,6 +81,23 @@ feature -- Access
 
 	players: V_ARRAY [PLAYER]
 			-- Container for players.
+
+	winner: PLAYER
+		local
+			i: INTEGER
+		do
+			across
+				players as player
+			loop
+				if player.item.money > 0 then
+					Result := player.item
+					i := i + 1
+				end
+			end
+			if i > 1 then
+				Result := Void
+			end
+		end
 
 	die_1: DIE
 			-- The first die.

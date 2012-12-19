@@ -17,6 +17,7 @@ feature {NONE} -- Initialization
 			board := b
 			position := b.squares.lower
 			board.set_position (Current)
+			create properties.make (1, board.square_count)
 		ensure
 			name_set: name ~ ("Player " + n.out)
 			board_set: board = b
@@ -43,8 +44,10 @@ feature  -- Access
 	money: INTEGER
 			-- Amount of money.
 
-	properties: V_ARRAY [SQUARE]
+	properties: V_ARRAY [PROPERTY_SQUARE]
 			-- Array of Squares a player owns
+
+	properties_num: INTEGER
 
 feature -- Moving
 	move (n: INTEGER)
@@ -71,6 +74,34 @@ feature -- Money
 			money_set: money = (old money + amount).max (0)
 		end
 
+	go_bankrupt
+		local
+			i: INTEGER
+		do
+			from
+				i := 1
+			until
+				i > properties_num
+			loop
+				board.un_highlight_property (properties [i])
+				properties [i].unown
+				i := i + 1
+			end
+		end
+
+	buy (square: PROPERTY_SQUARE)
+		local
+			pos: POSITION
+		do
+			properties_num := properties_num + 1
+			properties.put (square, properties_num)
+			transfer (-square.price)
+			pos := board.get_draw_pos (square)
+			pos.affect_i (1)
+			board.draw_at_pos (pos, " CHF " + square.rent.out)
+			board.highlight_property (square)
+		end
+
 feature -- Basic operations
 	play (d1, d2: DIE)
 			-- Play a turn with dice `d1', `d2'.
@@ -80,6 +111,9 @@ feature -- Basic operations
 			d1.roll
 			d2.roll
 			board.squares [position].move (Current, d1.face_value, d2.face_value)
+			if money = 0 then
+				go_bankrupt
+			end
 		end
 
 feature -- jail
