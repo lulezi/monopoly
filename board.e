@@ -3,9 +3,6 @@ class
 
 inherit
 	ANY
-		redefine
-			out
-		end
 
 create
 	make
@@ -61,9 +58,6 @@ feature -- Constants
 
 	square_h: INTEGER = 6
 
-	brackets: POSITION
-	  -- current position of brackets
-
 	center_text_pos: POSITION
 		do
 			create Result.make (square_h + 2, square_w + 3)
@@ -80,37 +74,16 @@ feature -- Constants
 		end
 
 feature -- Output
-	out: STRING
-		do
-			Result := ""
-			across
-				output as output_row
-			loop
-				across
-					output_row.item as output_col
-				loop
-					Result := Result + output_col.item
-				end
-				Result := Result + "%N"
-			end
-			clear_center_text
-		end
-
-	output: V_ARRAY [V_ARRAY [STRING]]
-
 	draw_lines
 		local
 			i, j: INTEGER
 		do
-			create output.make (1, char_rows)
-
 			i := 0
 			from
 				i := 1
 			until
 				i > char_rows
 			loop
-				output.put (create {V_ARRAY [STRING]}.make (1, char_cols), i)
 				from
 					j := 1
 				until
@@ -118,22 +91,22 @@ feature -- Output
 				loop
 					if i <= square_h or i > char_rows - square_h or j <= square_w or j > char_cols - square_w then
 						if (i - 1) \\ (square_h - 1) = 0 and (j - 1) \\ (square_w - 1) = 0 then
-							output.at (i).item.at (j).put ("+")
+							mcc (i, j)
+							io.put_string ("+")
 						elseif (i - 1) \\ (square_h - 1) = 0 then
-							output.at (i).item.at (j).put ("-")
+							mcc (i, j)
+							io.put_string ("-")
 						elseif (j - 1) \\ (square_w - 1) = 0 then
-							output.at (i).item.at (j).put ("|")
-						else
-							output.at (i).item.at (j).put (" ")
+							mcc (i, j)
+							io.put_string ("|")
 						end
-					else
-						output.at (i).item.at (j).put (" ")
 					end
 					j := j + 1
 				end
 				i := i + 1
 			end
 		end
+
 	get_draw_pos (square_id: INTEGER): POSITION
 		local
 			i, j: INTEGER
@@ -157,18 +130,9 @@ feature -- Output
 	draw_at_pos (pos: POSITION; s: STRING)
 		require
 			pos /= Void
-		local
-			p: INTEGER
 		do
-			from
-				p := 1
-			until
-				p > s.count
-			loop
-				output.at (pos.i).item.at (pos.j+p-1).put (s.at (p).out)
-				p := p + 1
-			end
-
+			mcc (pos.i, pos.j)
+			io.put_string (s)
 		end
 
 	draw_square_names
@@ -191,6 +155,12 @@ feature -- Output
 		end
 
 	draw_center_text (s: STRING)
+		do
+			clear_center_text
+			draw_center_text_draw (s)
+		end
+
+	draw_center_text_draw (s: STRING)
 		local
 			pos: POSITION
 			i, j, len: INTEGER
@@ -212,14 +182,13 @@ feature -- Output
 
 	clear_center_text
 		local
-			pos: POSITION
 			len: INTEGER
 			s: STRING
 		do
 			len := char_cols - (2 * (square_w + 2))
 			create s.make_from_string (" ")
-			s.multiply (len * 4)
-			draw_center_text (s)
+			s.multiply (len * 5)
+			draw_center_text_draw (s)
 		end
 
 	sync_leaderboard (players: V_ARRAY [PLAYER])
@@ -253,43 +222,43 @@ feature  -- player positions
 
 			if old_p /= 0 then
 				pos := get_draw_pos (old_p)
-				i := pos.i + (((p_id - 1) // 3) + 2)
-				j := pos.j + 3 * x - 2
-				output.at (i).item.at (j).put (" ")
+				pos.affect_i (((p_id - 1) // 3) + 2)
+				pos.affect_j (3 * x - 3)
+				draw_at_pos (pos, "   ")
 			end
 
 			pos := get_draw_pos (new_p)
-			i := pos.i + (((p_id - 1) // 3) + 2)
-			j := pos.j + 3 * x - 2
+			pos.affect_i (((p_id - 1) // 3) + 2)
+			pos.affect_j (3 * x - 3)
+			scc (0, 112)
+			draw_at_pos (pos, "[" + p_id.out + "]")
+			scc (7, 0)
 
-			output.at (i).item.at (j).put (p_id.out)
-
-			set_brackets (create {POSITION}.make(i, j))
-
-		end
-
-	set_brackets (new_brackets: POSITION)
-		do
-			if brackets /= Void then
-				output.at (brackets.i).item.at (brackets.j-1).put (" ")
-				output.at (brackets.i).item.at (brackets.j+1).put (" ")
-			end
-
-			output.at (new_brackets.i).item.at (new_brackets.j-1).put ("[")
-			output.at (new_brackets.i).item.at (new_brackets.j+1).put ("]")
-
-			brackets := new_brackets
 		end
 
 feature  -- user interaction
 	read_answer: CHARACTER
 		do
-			print (out)
 			print ("%N")
 			io.read_character
 			Result := io.last_character
 		end
 
+feature
+	mcc (a_row, a_col: INTEGER)
+		do
+			cc.mcc (a_row, a_col)
+		end
+
+	scc (a_fg, a_bg: INTEGER)
+		do
+			cc.scc (a_fg, a_bg)
+		end
+
+	cc: CURSOR_CONTROLLER
+		once
+			create Result
+		end
 
 --invariant
 --	squares_exists: squares /= Void

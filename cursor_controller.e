@@ -8,6 +8,11 @@ feature -- access
 			move_console_cursor (a_row, a_col)
 		end
 
+	scc (a_fg, a_bg: INTEGER)
+		do
+			set_console_color (a_fg, a_bg)
+		end
+
 feature -- windows
 
 	move_console_cursor (a_row, a_col: INTEGER)
@@ -44,7 +49,7 @@ feature -- windows
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), text_color);
 				]"
 			end
-	
+
 feature -- unix
 
 	--	esc_char: CHARACTER

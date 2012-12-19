@@ -29,7 +29,6 @@ feature {NONE} -- Initialization
 			create die_1.roll
 			create die_2.roll
 			board.sync_leaderboard (players)
-			print_board
 		end
 
 feature -- Basic operations
@@ -57,11 +56,9 @@ feature -- Basic operations
 						board.sync_leaderboard (players)
 						pig := pig + 1
 					end
+					io.read_line
 					i := i + 1
 				end
---				if round \\ 10 = 0 then
-					print_board
---				end
 				round := round + 1
 			end
 		end
@@ -90,13 +87,6 @@ feature -- Access
 
 	die_2: DIE
 			-- The second die.
-
-feature {NONE} -- Implementation
- 	print_board
-			-- Output players positions on the board.
-		do
-			print (board.out)
-		end
 
 invariant
 	board_exists: board /= Void
