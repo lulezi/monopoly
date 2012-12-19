@@ -277,14 +277,13 @@ feature  -- user interaction
 		local
 			ans: CHARACTER
 		do
---			mcc (center_text_pos.i + 4, center_text_pos.j)
---			scc (7, p.color)
---			io.put_string ("ANSWER (Y/n): ")
---			io.read_character
---			scc (7, 0)
---			ans := io.last_character.as_lower
---			Result := (ans /= 'n')
-			Result := true
+			mcc (center_text_pos.i + 4, center_text_pos.j)
+			scc (7, p.color)
+			io.put_string ("ANSWER (Y/n): ")
+			io.read_character
+			scc (7, 0)
+			ans := io.last_character.as_lower
+			Result := (ans /= 'n')
 		end
 
 feature
@@ -303,7 +302,7 @@ feature
 			create Result
 		end
 
---invariant
---	squares_exists: squares /= Void
---	squares_count_valid: squares.count = Square_count
+invariant
+	squares_exists: squares /= Void
+	squares_count_valid: squares.count = Square_count
 end

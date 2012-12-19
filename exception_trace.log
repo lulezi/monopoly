@@ -80,3 +80,35 @@ APPLICATION         make @7
 APPLICATION         root's creation                                     
 <0000000001930420>                         Routine failure.              Exit
 -------------------------------------------------------------------------------
+
+board_game: system execution failed.
+Following is the set of recorded exceptions:
+
+-------------------------------------------------------------------------------
+Class / Object      Routine                Nature of exception           Effect
+-------------------------------------------------------------------------------
+APPLICATION         make @6                board:                       
+<0000000001930420>                         Feature call on void target.  Fail
+-------------------------------------------------------------------------------
+APPLICATION         make @6                                             
+<0000000001930420>                         Routine failure.              Fail
+-------------------------------------------------------------------------------
+APPLICATION         root's creation                                     
+<0000000001930420>                         Routine failure.              Exit
+-------------------------------------------------------------------------------
+
+board_game: system execution failed.
+Following is the set of recorded exceptions:
+
+-------------------------------------------------------------------------------
+Class / Object      Routine                Nature of exception           Effect
+-------------------------------------------------------------------------------
+APPLICATION         make @6                board:                       
+<0000000001930420>                         Feature call on void target.  Fail
+-------------------------------------------------------------------------------
+APPLICATION         make @6                                             
+<0000000001930420>                         Routine failure.              Fail
+-------------------------------------------------------------------------------
+APPLICATION         root's creation                                     
+<0000000001930420>                         Routine failure.              Exit
+-------------------------------------------------------------------------------
