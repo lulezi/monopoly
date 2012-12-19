@@ -13,9 +13,10 @@ feature {NONE} -- Initialization
 		do
 			name := ("Player " + n.out).twin
 			number := n
+			color := n * 16
 			board := b
 			position := b.squares.lower
-			board.set_position (n, 0, 1)
+			board.set_position (Current)
 		ensure
 			name_set: name ~ ("Player " + n.out)
 			board_set: board = b
@@ -29,8 +30,12 @@ feature  -- Access
 	number: INTEGER
 			-- Player ID.
 
+	color: INTEGER
+
 	board: BOARD
 			-- Board on which the player is playing.			
+
+	old_position: INTEGER
 
 	position: INTEGER
 			-- Current position on the board.
@@ -44,10 +49,8 @@ feature  -- Access
 feature -- Moving
 	move (n: INTEGER)
 			-- Advance `n' positions on the board.
-		local
-			old_pos: INTEGER
 		do
-			old_pos := position
+			old_position := position
 			position := position + n
 			from
 			until
@@ -55,7 +58,7 @@ feature -- Moving
 			loop
 				position := position - board.square_count
 			end
-			board.set_position (number, old_pos, position)
+			board.set_position (Current)
 			board.squares [position].affect (Current)
 		end
 

@@ -207,12 +207,12 @@ feature -- Output
 
 feature  -- player positions
 
-	set_position (p_id, old_p, new_p: INTEGER)
+	set_position (p: PLAYER)
 		local
 			i, j, x: INTEGER
 			pos: POSITION
 		do
-			x := p_id
+			x := p.number
 			from
 			until
 				x >= 1 and x <= 3
@@ -220,18 +220,18 @@ feature  -- player positions
 				x := x - 3
 			end
 
-			if old_p /= 0 then
-				pos := get_draw_pos (old_p)
-				pos.affect_i (((p_id - 1) // 3) + 2)
+			if p.old_position /= 0 then
+				pos := get_draw_pos (p.old_position)
+				pos.affect_i (((p.number - 1) // 3) + 2)
 				pos.affect_j (3 * x - 3)
 				draw_at_pos (pos, "   ")
 			end
 
-			pos := get_draw_pos (new_p)
-			pos.affect_i (((p_id - 1) // 3) + 2)
+			pos := get_draw_pos (p.position)
+			pos.affect_i (((p.number - 1) // 3) + 2)
 			pos.affect_j (3 * x - 3)
-			scc (0, 112)
-			draw_at_pos (pos, "[" + p_id.out + "]")
+			scc (0, p.color)
+			draw_at_pos (pos, "[" + p.number.out + "]")
 			scc (7, 0)
 
 		end
