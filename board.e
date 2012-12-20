@@ -245,7 +245,38 @@ feature  -- player positions
 
 	set_position (p: PLAYER)
 		local
-			i, j, x: INTEGER
+			i, j, h, start, steps: INTEGER
+			ex_env: EXECUTION_ENVIRONMENT
+		do
+			create ex_env
+			steps := p.last_move
+			start := p.old_position
+			if steps < 0 then
+				set_position_step (p, squares [start], squares [start + steps])
+			else
+				from
+					i := 1
+				until
+					i > steps
+				loop
+					j := (start + i) \\ square_count
+					h := (start + i - 1) \\ square_count
+					if j = 0 then
+						j := square_count
+					end
+					if h = 0 then
+						h := square_count
+					end
+					set_position_step (p, squares [h], squares [j])
+					ex_env.sleep (200000000)
+					i := i + 1
+				end
+			end
+		end
+
+	set_position_step (p: PLAYER; old_sq, sq: SQUARE)
+		local
+			i, x: INTEGER
 			pos: POSITION
 		do
 			x := p.number
@@ -256,14 +287,12 @@ feature  -- player positions
 				x := x - 3
 			end
 
-			if p.old_position /= 0 then
-				pos := get_draw_pos (squares [p.old_position])
-				pos.affect_i (((p.number - 1) // 3) + 2)
-				pos.affect_j (3 * x - 3)
-				draw_at_pos (pos, "   ")
-			end
+			pos := get_draw_pos (old_sq)
+			pos.affect_i (((p.number - 1) // 3) + 2)
+			pos.affect_j (3 * x - 3)
+			draw_at_pos (pos, "   ")
 
-			pos := get_draw_pos (squares [p.position])
+			pos := get_draw_pos (sq)
 			pos.affect_i (((p.number - 1) // 3) + 2)
 			pos.affect_j (3 * x - 3)
 			scc (7, p.color)

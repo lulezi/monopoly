@@ -38,9 +38,11 @@ feature -- Basic operations
 		local
 			round, i: INTEGER
 			pos: POSITION
+			ex_env: EXECUTION_ENVIRONMENT
 		do
 			pos := board.center_text_pos
 			pos.affect_i (-2)
+			create ex_env
 			from
 				round := 1
 			until
@@ -56,6 +58,7 @@ feature -- Basic operations
 						players [i].play (die_1, die_2)
 						board.sync_leaderboard (players)
 					end
+					ex_env.sleep (1000000000)
 --					io.read_line
 					i := i + 1
 				end

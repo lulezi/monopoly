@@ -16,6 +16,7 @@ feature {NONE} -- Initialization
 			color := n * 16
 			board := b
 			position := b.squares.lower
+			old_position := b.squares.lower
 			board.set_position (Current)
 			create properties.make (1, board.square_count)
 		ensure
@@ -41,6 +42,9 @@ feature  -- Access
 	position: INTEGER
 			-- Current position on the board.
 
+	last_move: INTEGER
+			-- Number of steps from last move.
+
 	money: INTEGER
 			-- Amount of money.
 
@@ -53,6 +57,7 @@ feature -- Moving
 	move (n: INTEGER)
 			-- Advance `n' positions on the board.
 		do
+			last_move := n
 			old_position := position
 			position := position + n
 			from
